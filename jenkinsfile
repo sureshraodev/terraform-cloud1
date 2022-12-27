@@ -26,7 +26,7 @@ pipeline{
             steps{
                 sh '''
                    set -x
-                   terraform init
+                   #terraform init
                    ls -al
                    touch .terraformrc
                    ls -al

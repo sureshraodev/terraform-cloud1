@@ -1,0 +1,44 @@
+pipeline{
+    agent any
+    tools {
+        terraform 'terraform-1.2.8'
+    }
+    environment {
+        SECRET_FILE_ID = credentials('terraform-login')
+      }
+      
+    options {
+        ansiColor('xterm')
+    }
+    
+    stages{
+        stage('Git Checkout'){
+            steps{
+                git 'https://github.com/sureshraodev/terraform-cloud1.git'
+            }
+        }
+        stage("set env variabl"){
+            steps{
+                sh 'export AWS_PROFILE=ilab'
+            }
+        }
+        stage('Terraform init'){
+            steps{
+                sh '''
+                   set -x
+                   terraform init
+                   ls -al
+                   touch .terraformrc
+                   ls -al
+                   cat .terraformrc
+                   terraform login
+                '''
+            }
+        }
+    }
+    post {
+      always {
+        deleteDir()
+      }
+    }
+}

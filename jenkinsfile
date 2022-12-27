@@ -29,6 +29,11 @@ pipeline{
                    #terraform init
                    ls -al
                    touch .terraformrc
+                   cat > .terraformrc <<EOL
+                   credentials "app.terraform.io" {
+                      token = "${SECRET_FILE_ID}"
+                   }
+                   EOL
                    ls -al
                    cat .terraformrc
                    terraform login

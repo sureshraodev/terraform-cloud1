@@ -4,7 +4,10 @@ pipeline{
         terraform 'terraform-1.2.8'
     }
     environment {
-        SECRET_FILE_ID = credentials('terraform-login')
+       TF_TOKEN_app_terraform_io  = credentials('terraform-login')
+       AWS_ACCESS_KEY_ID = credentials('aws_access_key')
+       AWS_SECRET_ACCESS_KEY= credentials('aws_secret_key')
+       REGION = "us-east-1"      
       }
       
     options {
@@ -17,27 +20,19 @@ pipeline{
                 git 'https://github.com/sureshraodev/terraform-cloud1.git'
             }
         }
-        stage("set env variabl"){
-            steps{
-                sh 'export AWS_PROFILE=ilab'
-            }
-        }
         stage('Terraform init'){
             steps{
-                sh '''
-                   set -x
-                   #terraform init
-                   ls -al
-                   touch .terraformrc
-                   cat > .terraformrc <<EOL
-                   credentials "app.terraform.io" {
-                      token = "${SECRET_FILE_ID}"
-                   }
-                   EOL
-                   ls -al
-                   cat .terraformrc
-                   terraform login
-                '''
+                sh "terraform init "
+            }
+        }
+        stage('Terraform plan'){
+            steps{
+                sh 'terraform plan -var="aws_access_key=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_ACCESS_KEY" -var="region=us-east-1"'
+            }
+        }
+        stage('Terraform apply'){
+            steps{
+                sh 'terraform apply -auto-approve -var="aws_access_key=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_ACCESS_KEY" -var="region=us-east-1"'
             }
         }
     }
